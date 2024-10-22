@@ -85,7 +85,7 @@ const Dashboard = () => {
                 className="h-[45px] w-[151px] gap-[8px] rounded-[12px] border-[1px] border-[rgba(255,69,13,1)] bg-transparent text-[rgba(255,69,13,1)]"
                 onClick={() => setIsOpen(true)}
               >
-                Create Budget
+                Request Budget
               </button>
             </div>
           </div>
@@ -147,7 +147,7 @@ const Dashboard = () => {
                       className="h-[45px] w-[151px] rounded-[12px] border-[1px] bg-[rgba(255,69,13,1)] text-[rgba(255,255,255,255)]"
                       onClick={() => setIsOpen(true)}
                     >
-                      Create Budget
+                      Request Budget
                     </button>
                   </div>
                 </>
@@ -170,11 +170,12 @@ const Dashboard = () => {
 
                     <div className="border p-5">
                       <p className="capitalize border-b-2 mb-3 border-black">Department(s): {budget.department}</p>
-                      <p className="capitalize border-b-2 mb-3 border-black">Requested Budget:$ {budget.totalAllocated}</p>
+                      <p className="capitalize border-b-2 mb-3 border-black">Requested Budget: ${budget.totalAllocated}</p>
                       <p className="border-black border-b-2 mb-3">Created Date: {new Date(budget.date).toLocaleDateString()}</p>
+                       {/* Display budget status */}
                       <p className="capitalize border-b-2 mb-3 border-black">Status: {budget.status}</p>{" "}
-                      {/* Display budget status */}
-                      <div></div>
+                     
+                     
                     </div>
                   </div>
                 ))
@@ -187,7 +188,7 @@ const Dashboard = () => {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
               <div className="relative w-[436px] rounded-[24px] bg-white p-6 shadow-lg">
                 <h2 className="text-2xl font-[600] text-[rgba(29,41,57,1)]">
-                  Create Budget
+                  Request Budget
                 </h2>
                 <p className="text-[14px] font-[400]">
                   Note: Once you have created your budget, you can’t update it.
@@ -266,13 +267,13 @@ const Dashboard = () => {
                 </div>
 
                 <div className="mb-4 flex justify-between">
-                  <p className="text-[40px] font-[600]">{totalBudgets}</p>
+                  <p className="text-[40px] font-[600]">${totalBudgets}</p>
                   <img src={Money} alt="Money Box" className="" />
                 </div>
 
                 <div className="mb-6 flex justify-between border-b text-[16px] font-[600]">
-                  <p>Total Spent</p>
-                  <p>{totalBudgets}</p>
+                  <p>Requested Budget</p>
+                  <p>${totalBudgets}</p>
                 </div>
 
                 <div className="mb-6 flex justify-between border-b">
