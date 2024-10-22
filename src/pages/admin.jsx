@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import AnimationWrapper from "../common/page-Animaton";
 import Dashboard_navbar from "../components/dashboard_navbar";
@@ -12,11 +11,24 @@ const AdminDashboard = () => {
     {
       id: 1,
       department: "Marketing",
+      organization: "FutMinna",
       requestedAmount: 5000,
       status: "Pending",
     },
-    { id: 2, department: "R&D", requestedAmount: 12000, status: "Pending" },
-    { id: 3, department: "HR", requestedAmount: 3000, status: "Pending" },
+    {
+      id: 2,
+      organization: "Kadpoly",
+      department: "R&D",
+      requestedAmount: 12000,
+      status: "Pending",
+    },
+    {
+      id: 3,
+      organization: "Nekede",
+      department: "HR",
+      requestedAmount: 3000,
+      status: "Pending",
+    },
   ]);
 
   // State to manage modals and selected budget
@@ -24,7 +36,7 @@ const AdminDashboard = () => {
   const [allocatedAmount, setAllocatedAmount] = useState("");
   const [isAllocateModalOpen, setAllocateModalOpen] = useState(false);
   const [isReleaseModalOpen, setReleaseModalOpen] = useState(false);
-  
+
   // Track the total spent (released funds) and total allocated
   const [totalSpent, setTotalSpent] = useState(0);
   const [totalAllocated, setTotalAllocated] = useState(0);
@@ -77,7 +89,9 @@ const AdminDashboard = () => {
     );
 
     // Add the allocated amount to the total spent
-    setTotalSpent((prevTotal) => prevTotal + Number(selectedBudget.allocatedAmount));
+    setTotalSpent(
+      (prevTotal) => prevTotal + Number(selectedBudget.allocatedAmount),
+    );
     closeModals();
   };
 
@@ -105,45 +119,51 @@ const AdminDashboard = () => {
         <div className="flex flex-wrap items-center justify-center gap-5 p-5">
           <div className="flex h-[144px] w-[436px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] p-8 text-white">
             <div>
-               <h2 className="text-[18px] font-[400] text-[rgba(152,162,179,1)]">
-                 Total Budget
-               </h2>
-               <p className="text-[40px] font-[600]">${/* Add total budget logic here when you fetch from the client side */}</p>
-             </div>
-             <div>
-               <img src={Money} alt="Money Box" />
-             </div>
-           </div>
+              <h2 className="text-[18px] font-[400] text-[rgba(152,162,179,1)]">
+                Total Budget
+              </h2>
+              <p className="text-[40px] font-[600]">
+                $
+                {/* Add total budget logic here when you fetch from the client side */}
+              </p>
+            </div>
+            <div>
+              <img src={Money} alt="Money Box" />
+            </div>
+          </div>
 
           <div className="flex h-[144px] w-[436px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] p-8 text-white">
             <div>
-               <h2 className="text-[18px] font-[400] text-[rgba(152,162,179,1)]">
-                 Total Allocated
-               </h2>
-               <p className="text-[40px] font-[600]">${totalAllocated}</p>
-             </div>
-             <div>
-               <img src={Money} alt="Money Box" />
-             </div>
-           </div>
+              <h2 className="text-[18px] font-[400] text-[rgba(152,162,179,1)]">
+                Total Allocated
+              </h2>
+              <p className="text-[40px] font-[600]">${totalAllocated}</p>
+            </div>
+            <div>
+              <img src={Money} alt="Money Box" />
+            </div>
+          </div>
 
-           <div className="flex h-[144px] w-[436px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] p-8 text-white">
-             <div>
-               <h2 className="text-[18px] font-[400] text-[rgba(152,162,179,1)]">
-                 Total Spent
-               </h2>
-               <p className="text-[40px] font-[600]">${totalSpent}</p>
-             </div>
-             <div>
-               <img src={Money} alt="Money Box" />
-             </div>
-           </div>
-         </div>
-         <h1 className="text-center text-3xl font-bold mb-5">Admin Dashboard</h1>
+          <div className="flex h-[144px] w-[436px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] p-8 text-white">
+            <div>
+              <h2 className="text-[18px] font-[400] text-[rgba(152,162,179,1)]">
+                Total Spent
+              </h2>
+              <p className="text-[40px] font-[600]">${totalSpent}</p>
+            </div>
+            <div>
+              <img src={Money} alt="Money Box" />
+            </div>
+          </div>
+        </div>
+        <h1 className="mb-5 text-center text-3xl font-bold">Admin Dashboard</h1>
         {/* Requested Budgets List */}
         <div className="grid grid-cols-1 gap-4">
           {budgets.map((budget) => (
             <div key={budget.id} className="rounded-lg border p-4 shadow-md">
+              <p>
+                <strong>Organization:</strong> {budget.organization}
+              </p>
               <p>
                 <strong>Department:</strong> {budget.department}
               </p>
@@ -163,7 +183,7 @@ const AdminDashboard = () => {
               {budget.status === "Pending" && (
                 <button
                   onClick={() => openAllocateModal(budget)}
-                  className="mt-4 rounded-lg border border-[rgba(255,69,13,1)] bg-transparent text-[rgba(255,69,13,1)] px-4 py-2  hover:bg-[rgba(255,69,13,1)] hover:text-white"
+                  className="mt-4 rounded-lg border border-[rgba(255,69,13,1)] bg-transparent px-4 py-2 text-[rgba(255,69,13,1)] hover:bg-[rgba(255,69,13,1)] hover:text-white"
                 >
                   Allocate Funds
                 </button>
@@ -173,7 +193,7 @@ const AdminDashboard = () => {
               {budget.status === "Allocated" && (
                 <button
                   onClick={() => openReleaseModal(budget)}
-                  className="mt-4 rounded-lg border border-[rgba(255,69,13,1)] bg-transparent text-[rgba(255,69,13,1)] px-4 py-2  hover:bg-[rgba(255,69,13,1)] hover:text-white"
+                  className="mt-4 rounded-lg border border-[rgba(255,69,13,1)] bg-transparent px-4 py-2 text-[rgba(255,69,13,1)] hover:bg-[rgba(255,69,13,1)] hover:text-white"
                 >
                   Release Funds
                 </button>
@@ -186,12 +206,22 @@ const AdminDashboard = () => {
         {isAllocateModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
-              <h3 className="mb-4 text-xl font-semibold text-center">
-                Allocate Funds 
+              <h3 className="mb-4 text-center text-xl font-semibold">
+                Allocate Funds
               </h3>
-              <p className="mb-5">{selectedBudget.department}</p>
-              <p className="mb-4 font-semibold">
-                Requested Amount: ${selectedBudget.requestedAmount}
+
+              <p className="mb-2 flex justify-between">
+                <strong>Organization:</strong>
+                <span className="text-[rgba(255,69,13,1)]">{selectedBudget.organization}</span>
+              </p>
+              <p className="mb-2 flex justify-between">
+                <strong>Department:</strong>
+                <span className="text-[rgba(255,69,13,1)]">{selectedBudget.department}</span>
+              </p>
+
+              <p className="mb-4 font-semibold flex justify-between">
+                Requested Amount: 
+                <span className="text-[rgba(255,69,13,1)]">${selectedBudget.requestedAmount}</span>
               </p>
 
               <input
@@ -202,20 +232,20 @@ const AdminDashboard = () => {
                 className="mb-4 w-full rounded-md border p-2"
               />
 
-                <div className="flex justify-end">
-                  <button
-                    className="mr-2 h-[45px] w-[151px] rounded-[12px] border border-[rgba(255,69,13,1)] bg-transparent text-[rgba(255,69,13,1)]"
-                    onClick={closeModals}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="h-[45px] w-[151px] rounded-[12px] bg-[rgba(255,69,13,1)] text-white"
-                    onClick={handleAllocateFunds}
-                  >
-                    Submit
-                  </button>
-                </div>
+              <div className="flex justify-end">
+                <button
+                  className="mr-2 h-[45px] w-[151px] rounded-[12px] border border-[rgba(255,69,13,1)] bg-transparent text-[rgba(255,69,13,1)]"
+                  onClick={closeModals}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="h-[45px] w-[151px] rounded-[12px] bg-[rgba(255,69,13,1)] text-white"
+                  onClick={handleAllocateFunds}
+                >
+                  Submit
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -224,29 +254,38 @@ const AdminDashboard = () => {
         {isReleaseModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
-              <h3 className="mb-4 text-xl font-semibold">
-                Release Funds for {selectedBudget.department}
+            <h3 className="mb-4 text-center text-xl font-semibold">
+                Release Funds
               </h3>
-              <p className="mb-4">
-                Allocated Amount: ${selectedBudget.allocatedAmount}
-              </p>
-
-
+          
+              <h3 className="mb-4 flex justify-between font-semibold">
+                <strong>Organization:</strong>
+                <span>{selectedBudget.organization}</span> 
+              </h3>
+              <h3 className="mb-4 flex justify-between font-semibold">
+                <strong>Department:</strong>
+                <span>{selectedBudget.department}</span> 
+              </h3>
               
+              <h3 className="mb-4 flex justify-between font-semibold">
+                <strong>Allocated Amount:</strong>
+                <span>${selectedBudget.allocatedAmount}</span> 
+              </h3>
+
               <div className="flex justify-end">
-                  <button
-                    className="mr-2 h-[45px] w-[151px] rounded-[12px] border border-[rgba(255,69,13,1)] bg-transparent text-[rgba(255,69,13,1)]"
-                    onClick={closeModals}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="h-[45px] w-[151px] rounded-[12px] bg-[rgba(255,69,13,1)] text-white"
-                    onClick={handleReleaseFunds}
-                  >
-                    Release
-                  </button>
-                </div>
+                <button
+                  className="mr-2 h-[45px] w-[151px] rounded-[12px] border border-[rgba(255,69,13,1)] bg-transparent text-[rgba(255,69,13,1)]"
+                  onClick={closeModals}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="h-[45px] w-[151px] rounded-[12px] bg-[rgba(255,69,13,1)] text-white"
+                  onClick={handleReleaseFunds}
+                >
+                  Release
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -256,5 +295,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
-
