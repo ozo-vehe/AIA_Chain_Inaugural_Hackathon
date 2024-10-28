@@ -51,7 +51,7 @@ const ChatBox = () => {
       <AnimationWrapper>
         <section className="flex h-screen flex-col items-center justify-center">
           <h1 className="mb-5 text-center text-[24px] font-bold">
-            AI-Powered Fund Management for the Future
+            AI-Powered Fund Management for the Future  
           </h1>
 
           {/* Chatbox Container */}
@@ -93,7 +93,7 @@ const ChatBox = () => {
 
           <Link to="/">
             <button className="mt-[2rem] rounded-lg bg-gray-300 p-[10px] font-bold">
-              BACK TO HOME
+              BACK TO HOME  
             </button>
           </Link>
         </section>
