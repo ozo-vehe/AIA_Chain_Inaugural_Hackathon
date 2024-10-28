@@ -5,6 +5,7 @@ import Dashboard_navbar from "../components/dashboard_navbar";
 import { abi, contractAddress } from "../smartContract/constant";
 import Person from "../assets/Ellipse2.png";
 import Money from "../assets/Container(7).png";
+import { toast } from "react-toastify";
 
 const AdminDashboard = () => {
   const [provider, setProvider] = useState(null);
@@ -48,23 +49,9 @@ const AdminDashboard = () => {
           ethers.parseEther(amount)
         );
         const receipt = await tx.wait();
-        console.log("Successfully allocated budget:", receipt);
+        toast.success("Successfully allocated budget:", receipt);
       } catch (error) {
-        console.error("Error allocating budget:", error.message);
-      }
-    }
-  };
-
-  const requestFunds = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      const contract = new ethers.Contract(contractAddress, abi, signer);
-
-      try {
-        const tx = await contract.requestFunds(ethers.parseEther(amount));
-        const receipt = await tx.wait();
-        console.log("Funds successfully requested:", receipt);
-      } catch (error) {
-        console.error("Error requesting funds:", error.message);
+        toast.error("Error allocating budget:", error.message);
       }
     }
   };
@@ -79,9 +66,9 @@ const AdminDashboard = () => {
           ethers.parseEther(amount)
         );
         const receipt = await tx.wait();
-        console.log("Funds successfully released:", receipt);
+        toast.success("Funds successfully released:", receipt);
       } catch (error) {
-        console.error("Error releasing funds:", error.message);
+        toast.error("Error releasing funds:", error.message);
       }
     }
   };
@@ -114,6 +101,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        <div className="flex flex-row justify-center gap-4">
         <div className="my-5">
           <label>
             Address:
@@ -122,34 +110,28 @@ const AdminDashboard = () => {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Enter Ethereum address"
-              className="border p-2 w-full mt-2 rounded"
+              className="border p-2 w-300 m-2 rounded"
             />
           </label>
           <label className="mt-4 block">
-            Amount (ETH):
+            Amount:
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount in ETH"
-              className="border p-2 w-full mt-2 rounded"
+              className="border p-2 w-300 m-2 rounded"
             />
           </label>
         </div>
+        </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-row justify-center gap-4">
           <button
             onClick={allocateBudget}
             className="h-[45px] w-[151px] rounded-[12px] bg-[rgba(255,69,13,1)] text-white"
           >
             Allocate Budget
-          </button>
-
-          <button
-            onClick={requestFunds}
-            className="h-[45px] w-[151px] rounded-[12px] bg-[rgba(255,69,13,1)] text-white"
-          >
-            Request Funds
           </button>
 
           <button

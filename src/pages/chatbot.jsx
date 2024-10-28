@@ -1,7 +1,51 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import AnimationWrapper from "../common/page-Animaton";
+import axios from "axios";
 
-const Chat_box = () => {
+const ChatBox = () => {
+  const [userInput, setUserInput] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
+
+  // Handle changes to the input field and auto-resize based on content
+  const handleInputChange = (e) => {
+    setUserInput(e.target.value);
+    e.target.style.height = "auto"; 
+    e.target.style.height = `${e.target.scrollHeight}px`; 
+  };
+
+  const handleSubmit = async () => {
+    if (!userInput.trim()) return; 
+
+    updateChatHistory("user", userInput);
+
+    try {
+      const res = await axios.post("https://llama.us.gaianet.network/v1/chat/completions", {
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          { role: "user", content: userInput },
+        ],
+      });
+
+      const aiResponse = res?.data?.choices?.[0]?.message?.content || "Unexpected response format.";
+      updateChatHistory("assistant", aiResponse);
+    } catch (error) {
+      updateChatHistory("assistant", "An error occurred while fetching the response.");
+      console.error("Error fetching response:", error);
+    }
+
+    setUserInput(""); 
+  };
+
+  const updateChatHistory = (role, content) => {
+    setChatHistory((prevHistory) => [...prevHistory, { role, content }]);
+  };
+
+  const renderMessageWithBold = (message) => {
+    const formattedMessage = message.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    return <span dangerouslySetInnerHTML={{ __html: formattedMessage }} />;
+  };
+
   return (
     <>
       <AnimationWrapper>
@@ -12,29 +56,41 @@ const Chat_box = () => {
 
           {/* Chatbox Container */}
           <div className="w-[40rem] rounded-lg bg-white p-[2rem] shadow-lg">
-            {/* Response Area */}
+            {/* Chat History */}
             <div className="mb-[1.5rem] h-[200px] overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-[1rem]">
-              {/* Placeholder response */}
-              <p className="text-gray-600">Response will appear here...</p>
+              {chatHistory.length === 0 ? (
+                <p className="text-gray-400 italic">Your conversation will appear here...</p>
+              ) : (
+                chatHistory.map((msg, index) => (
+                  <p
+                    key={index}
+                    className={msg.role === "user" ? "text-gray-800 font-semibold" : "text-gray-600"}
+                  >
+                    {msg.role === "user" ? "" : "AI: "}
+                    {renderMessageWithBold(msg.content)}
+                  </p>
+                ))
+              )}
             </div>
 
-            {/* Input and Button */}
+            {/* Input and Submit Button */}
             <div className="flex flex-col items-center">
               <textarea
+                value={userInput}
                 placeholder="Type your message..."
                 className="mb-[1.5rem] h-[3rem] w-full resize-none overflow-hidden rounded-lg bg-gray-100 p-[10px] focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows="1"
-                onInput={(e) => {
-                  e.target.style.height = "auto"; // Reset height
-                  e.target.style.height = `${e.target.scrollHeight}px`; // Adjust height based on content
-                }}
+                onInput={handleInputChange}
               />
-
-              <button className="h-[45px] w-[8rem] rounded-[12px] bg-[rgba(255,69,13,1)] p-[12px] text-center text-[16px] font-[700] leading-[20.8px] text-white">
+              <button
+                onClick={handleSubmit}
+                className="h-[45px] w-[8rem] rounded-[12px] bg-[rgba(255,69,13,1)] p-[12px] text-center text-[16px] font-[700] leading-[20.8px] text-white"
+              >
                 Ask AI
               </button>
             </div>
           </div>
+
           <Link to="/">
             <button className="mt-[2rem] rounded-lg bg-gray-300 p-[10px] font-bold">
               BACK TO HOME
@@ -46,4 +102,4 @@ const Chat_box = () => {
   );
 };
 
-export default Chat_box;
+export default ChatBox;

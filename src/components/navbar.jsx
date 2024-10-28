@@ -12,18 +12,18 @@ const Navbar = () => {
           </Link>
 
           <div className="mt-2 flex gap-[15px]">
-            <h4>How FINEACE works</h4>
-            <h4>Why Blockchain matters</h4>
-            <h4>Benefits</h4>
+            <h4 className="hover:text-orange-600 cursor-pointer">How FINEACE works</h4>
+            <h4 className="hover:text-orange-600 cursor-pointer">Why Blockchain matters</h4>
+            <h4 className="hover:text-orange-600 cursor-pointer">Benefits</h4>
           </div>
 
           <Link to='/user_dashboard1'>
-            <button className="w-[158px] h-[45px] rounded-[12px] p-[12px] bg-[rgba(255,69,13,1)] text-center font-[400] text-[16px] leading-[20.8px] text-white">Connect wallet</button>
+            <button className="w-[158px] h-[45px] rounded-[12px] p-[12px] bg-[rgba(255,69,13,1)] text-center font-[400] text-[16px] leading-[20.8px] text-white">Login as User</button>
           </Link>
 
           {/* Remove the connect admin once done with validation */}
           <Link to='/admin'>
-            <button className="w-[158px] h-[45px] rounded-[12px] p-[12px] bg-[rgba(255,69,13,1)] text-center font-[400] text-[16px] leading-[20.8px] text-white">Connect Admin</button>
+            <button className="w-[158px] h-[45px] rounded-[12px] p-[12px] bg-[rgba(255,69,13,1)] text-center font-[400] text-[16px] leading-[20.8px] text-white">Login as Admin</button>
           </Link>
         </nav>
       </div>
