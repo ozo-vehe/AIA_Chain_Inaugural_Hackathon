@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import AnimationWrapper from "../common/page-Animaton";
 import axios from "axios";
 
-const ChatBox = () => {
+const Chatbot = () => {
   const [userInput, setUserInput] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
 
@@ -102,4 +102,4 @@ const ChatBox = () => {
   );
 };
 
-export default ChatBox;
+export default Chatbot;

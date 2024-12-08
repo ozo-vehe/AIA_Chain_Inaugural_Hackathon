@@ -1,4 +1,4 @@
-import Home_image from "../assets/Container.png";
+// import Home_image from "../assets/Container.png";
 import Home_image_2 from "../assets/Container(1).png";
 import Home_image_3 from "../assets/Container(2).png";
 import Home_image_4 from "../assets/Container(4).png";
@@ -10,8 +10,8 @@ import { Link } from "react-router-dom";
 const Home = () => {
   return (
     <>
-      <section>
-        <div className="sticky float-right top-0 z-10 mr-[4rem] ">
+      <section className="flex flex-col items-center justify-center">
+        <div className="fixed lg:bottom-8 lg:right-8 md:bottom-8 md:right-8 bottom-4 right-4">
           <button>
             <Link to='/chatbot'>
                <img src={Bot} alt="Chatbot" className="w-[50px]" />
@@ -19,11 +19,11 @@ const Home = () => {
           </button>
         </div>
         <div>
-          <img
+          {/* <img
             src={Home_image}
             alt="Home page image"
             className="h-[px] w-[1440px] gap-[0px] pl-[80px] pr-[80px] pt-[30px]"
-          />
+          /> */}
         </div>
 
         <div>
