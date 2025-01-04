@@ -11,6 +11,12 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Chatbot from "./pages/Chatbot.jsx";
 import Departments from "./pages/Departments.jsx";
 import FundRequests from "./pages/FundRequests.jsx";
+import About from "./pages/About.jsx";
+import KnowMore from "./pages/KnowMore.jsx";
+import KnowMoreDetails from "./pages/KnowMoreDetails.jsx";
+import ContactUs from "./pages/ContactUs.jsx";
+import LoansAndGrants from "./pages/LoansAndGrants.jsx";
+// import NotFound from "./pages/NotFound.jsx";
 
 import { store } from "./features/store.js";
 import { Provider } from "react-redux";
@@ -29,6 +35,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    // errorElement: <NotFound />,
     children: [
       {
         path: "/",
@@ -50,6 +57,26 @@ const router = createBrowserRouter([
         path: "/fund-requests",
         element: <FundRequests />,
       },
+      {
+        path: "/about",
+        element: <About />
+      },
+      {
+        path: "/know-more",
+        element: <KnowMore />
+      },
+      {
+        path: "/know-more/:id",
+        element: <KnowMoreDetails />
+      },
+      {
+        path: "/loans-and-grants",
+        element: <LoansAndGrants />
+      },
+      {
+        path: "/contact-us",
+        element: <ContactUs />
+      }      
     ],
   },
 ]);

@@ -10,16 +10,24 @@ import { useAccount, useDisconnect } from "wagmi";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const [showExploreMenu, setShowExploreMenu] = useState(false);
 
   const { address } = useAccount();
-  const { disconnect } = useDisconnect()
+  const { disconnect } = useDisconnect();
 
   const menuItems = [
     { name: "Home", icon: <HiHome />, link: "/" },
     { name: "Dashboard", icon: <MdDashboard />, link: "/dashboard" },
     // { name: "Analytics", icon: <MdAnalytics />, link: "/analytics" },
     // { name: "Settings", icon: <MdSettings />, link: "/settings" },
-    { name: "Explore", icon: <VscRemoteExplorer />, link: "/explore" },
+    // { name: "Explore", icon: <VscRemoteExplorer />, link: "/explore" },
+  ];
+
+  const exploreItems = [
+    { name: "About", link: "/about" },
+    { name: "Loans/Grants", link: "/loans-and-grants" },
+    { name: "Know More", link: "/know-more" },
+    { name: "Contact Us", link: "/contact-us" },
   ];
 
   useEffect(() => {
@@ -57,6 +65,7 @@ const Sidebar = () => {
 
         <div className="mt-2">
           <div className="menuLink">
+            {/* Menu Items */}
             {menuItems.map((item, index) => (
               <NavLink
                 key={index}
@@ -73,6 +82,45 @@ const Sidebar = () => {
                 )}
               </NavLink>
             ))}
+
+            {/* Explore Nav Items */}
+            <div className="explore flex flex-col">
+              <button
+                className={`my-2 flex items-center rounded-md p-2 px-[5px] text-gray-700 transition-all hover:bg-[#ff450d] hover:text-white`}
+                onClick={() => setShowExploreMenu(!showExploreMenu)}
+              >
+                <span className="text-xl">
+                  <VscRemoteExplorer />
+                </span>
+                {isOpen && (
+                  <span className="ml-4 text-sm font-medium">Explore</span>
+                )}
+              </button>
+
+              <div
+                className={`explore-items w-[80%] self-end ${showExploreMenu ? "h-[170px]" : "h-0"} overflow-hidden transition-all duration-300`}
+              >
+                {exploreItems.map((item, index) => (
+                  <NavLink
+                    key={index}
+                    to={item.link}
+                    className={({ isActive }) =>
+                      isActive
+                        ? `mb-2 flex items-center rounded-md bg-[#ff450d] p-2 text-gray-50 transition-all`
+                        : `mb-2 flex items-center rounded-md p-2 text-gray-700 transition-all hover:bg-[#ff450d] hover:text-white ${isOpen ? "" : "px-[5px]"}`
+                    }
+                  >
+                    {isOpen && (
+                      <span className="ml-4 text-sm font-medium">
+                        {item.name}
+                      </span>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+
+            {/* Connect Wallet Button */}
             {!address && (
               <div className="relative my-2 flex items-center overflow-hidden rounded-md p-2 text-gray-700 transition-colors hover:bg-[#ff450d] hover:text-white">
                 <span className="text-xl">
@@ -83,16 +131,20 @@ const Sidebar = () => {
                     <button className="capitalize">connect wallet</button>
                   </div>
                 )}
-                <div className="opacity-0 absolute left-0 top-0 h-full w-full">
+                <div className="absolute left-0 top-0 h-full w-full opacity-0">
                   <ConnectButton />
                 </div>
               </div>
             )}
           </div>
 
+          {/* Logout Button */}
           {address && (
             <div className="logout">
-              <button className={`my-2 flex w-full items-center rounded-md p-2 text-gray-700 transition-colors hover:bg-[#ff450d] hover:text-white ${isOpen ? "" : "px-[5px]"}`} onClick={() => disconnect()}>
+              <button
+                className={`my-2 flex w-full items-center rounded-md p-2 text-gray-700 transition-colors hover:bg-[#ff450d] hover:text-white ${isOpen ? "" : "px-[5px]"}`}
+                onClick={() => disconnect()}
+              >
                 <span className="text-xl">
                   <BiLogOut />
                 </span>
