@@ -2,15 +2,19 @@ import { useState } from "react";
 import { allocateFund, currencyFormat } from "../../utils/budget";
 import Loader from "../Loader";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
-import { fetchBudgetDepartments } from "../../features/budget/budgetSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllBudgets, getAllSavedBudgets } from "../../features/budget/budgetSlice";
+import { fetchAllDepartments, getAllDepartments } from "../../features/department/departmentSlice";
+import { fetchAllFundRequests } from "../../features/fundRequests/fundRequestsSlice";
 
-const AllocateFunds = ({ department, departmentCount }) => {
+const AllocateFundsModal = ({ department }) => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fundAllocation, setFundAllocation] = useState("");
 
   const dispatch = useDispatch();
+  const budgets = useSelector((state) => getAllSavedBudgets(state));
+  const departments = useSelector((state) => getAllDepartments(state));
 
   const handleAllocateFund = async (e) => {
     e.preventDefault();
@@ -22,12 +26,10 @@ const AllocateFunds = ({ department, departmentCount }) => {
     try {
       setLoading(true);
       const txHash = await allocateFund(department, fundAllocation);
-      dispatch(
-        fetchBudgetDepartments({
-          budgetAddress: department.budgetAddress,
-          departmentCount,
-        }),
-      );
+      dispatch(fetchAllDepartments(budgets));
+      dispatch(fetchAllFundRequests(departments))
+      dispatch(fetchAllBudgets());
+
       alert(`https://rootstock-testnet.blockscout.com/tx/${txHash}`);
     } catch (error) {
       console.log(error);
@@ -100,9 +102,9 @@ const AllocateFunds = ({ department, departmentCount }) => {
   );
 };
 
-export default AllocateFunds;
+export default AllocateFundsModal;
 
-AllocateFunds.propTypes = {
+AllocateFundsModal.propTypes = {
   department: PropTypes.object.isRequired,
   departmentCount: PropTypes.number.isRequired,
 };

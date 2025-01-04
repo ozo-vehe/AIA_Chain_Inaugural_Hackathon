@@ -1,155 +1,250 @@
 import Person from "../assets/Ellipse2.png";
 import Money from "../assets/Container(7).png";
-import AnimationWrapper from "../common/page-Animaton";
-// import { useEffect, useState } from "react";
 import BudgetComponent from "../components/BudgetComponent";
-import CreateBudget from "../components/modals/CreateBudget";
-import Departments from "../components/Departments";
+import CreateBudgetModal from "../components/modals/CreateBudgetModal";
 import {
-  getAllBudgets,
-  getAllDepartments,
-  getAllTotalBudgetAmount,
-  getTotalBudgetAllocated,
-  getShowDepartment,
-  getBudgetStatus,
+  fetchTotalAmountAllocated,
+  fetchTotalBudgetAmount,
+  getAllSavedBudgets,
+  getTotalBudgetAmount,
+  getTotalAmountAllocated,
 } from "../features/budget/budgetSlice";
-import { currencyFormat } from "../utils/budget";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Loader from "../components/Loader";
+import {
+  fetchAllDepartments,
+  getAllDepartments,
+} from "../features/department/departmentSlice";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import {
+  fetchAllFundRequests,
+  getAllFundRequests,
+} from "../features/fundRequests/fundRequestsSlice";
+import { currencyFormat } from "../utils/budget";
+import Requests from "../components/Requests";
+import BudgetDepartments from "../components/BudgetDepartments";
 
 const Dashboard = () => {
   // const [spentFunds, setSpentFunds] = useState(0);
+  const [filter, setFilter] = useState("created_budgets");
+  const [loading, setLoading] = useState(false);
+  const [organizationsForUser, setOrganizationsForUser] = useState([]);
+  const [createdBudgets, setCreatedBudgets] = useState([]);
+  const [showDepartments, setShowDepartments] = useState(false);
 
-  const budgets = useSelector((state) => getAllBudgets(state));
+  const { address } = useAccount();
+  const dispatch = useDispatch();
+
+  const budgets = useSelector((state) => getAllSavedBudgets(state));
   const departments = useSelector((state) => getAllDepartments(state));
-  const showDepartments = useSelector((state) => getShowDepartment(state));
-  const totalBudget = currencyFormat.format(
-    useSelector((state) => getAllTotalBudgetAmount(state)),
+  const fundRequests = useSelector((state) => getAllFundRequests(state));
+  const totalBudget = useSelector((state) => getTotalBudgetAmount(state));
+  const totalAmountAllocated = useSelector((state) =>
+    getTotalAmountAllocated(state),
   );
-  const allocatedBudget = currencyFormat.format(
-    useSelector((state) => getTotalBudgetAllocated(state)),
-  );
-  const budgetStatus = useSelector((state) => getBudgetStatus(state));
+
+  const handleFilterChanges = (e) => {
+    e.preventDefault();
+    setFilter(e.target.value);
+    if (departments?.length > 0) {
+      dispatch(fetchAllFundRequests(departments));
+      const department = departments.find(
+        (department) => department.departmentAddress === address,
+      );
+      console.log(department);
+      if (department) {
+        const budget = budgets.filter(
+          (budget) => budget.address === department.budgetAddress,
+        );
+
+        setOrganizationsForUser(budget);
+        console.log(budget);
+      }
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    const fetchContractDetails = async () => {
+      dispatch(fetchAllDepartments(budgets));
+      dispatch(fetchTotalBudgetAmount(address));
+      dispatch(fetchTotalAmountAllocated(address));
+
+      const createdBudgets = budgets.filter(
+        (budget) => budget.owner === address,
+      );
+      setCreatedBudgets(createdBudgets);
+      setLoading(false);
+    };
+
+    fetchContractDetails();
+  }, []);
 
   return (
     <>
-      <AnimationWrapper>
-        <section>
-          <header className="dashboard_header">
-            <div className="flex flex-wrap items-center justify-between gap-4 px-12 py-16">
-              <div className="flex items-start gap-4">
-                <img
-                  src={Person}
-                  alt="User Avatar"
-                  className="h-[64] w-[64px] rounded-full bg-[rgba(217,217,217,1)]"
-                />
-                <div className="">
-                  <h1 className="w-fit text-[24px] font-[600] leading-[41.6px] md:text-[32px] lg:text-[32px]">
-                    Welcome Back
-                  </h1>
-                  <p className="w-full text-[16px] font-[400]">
-                    Here&lsquo;s an overview of your budgets
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-5">
-                <button className="h-[45px] w-[179px] gap-[8px] rounded-[12px] bg-[#ff450d] text-white">
-                  Fund Organization
-                </button>
-                <CreateBudget />
-              </div>
-            </div>
-          </header>
-
-          {/* Budget Overview */}
-          <div className="budget_overview flex flex-wrap items-center justify-center gap-5 p-5">
-            <div className="flex w-[350px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] px-8 py-6 text-white">
+      <section className="dashboard">
+        <header className="dashboard_header">
+          <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-1 md:px-5 lg:px-10">
+            <div className="flex items-start gap-4">
+              <img
+                src={Person}
+                alt="User Avatar"
+                className="h-[64] w-[64px] rounded-full bg-[rgba(217,217,217,1)]"
+              />
               <div className="">
-                <h2 className="font-[400] text-[rgba(152,162,179,1)]">
-                  Total Budget
-                </h2>
-                <p className="text-[36px] font-[600]">
-                  <span className="text-[16px]">N</span>
-                  {totalBudget}{" "}
+                <h1 className="w-fit text-[24px] font-[600] leading-[41.6px] md:text-[32px] lg:text-[32px]">
+                  Welcome {address.slice(0, 6)}...{address.slice(-6)}
+                </h1>
+                <p className="w-full text-[16px] font-[400]">
+                  Here&lsquo;s an overview of your budgets
                 </p>
-              </div>
-              <div className="h-16 w-16">
-                <img className="full" src={Money} alt="Money Box" />
               </div>
             </div>
 
-            <div className="flex w-[350px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] px-8 py-6 text-white">
-              <div>
-                <h2 className="font-[400] text-[rgba(152,162,179,1)]">
-                  Total Allocated
-                </h2>
-                <p className="text-[36px] font-[600]">
-                  <span className="text-[16px]">N</span>
-                  {allocatedBudget} <span className="text-[14px]"></span>
-                </p>
-              </div>
-              <div className="h-16 w-16">
-                <img className="w-full" src={Money} alt="Money Box" />
-              </div>
+            <div className="flex flex-wrap items-center justify-center gap-5">
+              <CreateBudgetModal />
             </div>
+          </div>
+        </header>
 
-            <div className="flex w-[350px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] px-8 py-6 text-white">
-              <div>
-                <h2 className="font-[400] text-[rgba(152,162,179,1)]">
-                  Total Spent
-                </h2>
-                <p className="text-[36px] font-[600]">
-                  <span className="text-[16px]">N</span>
-                  {"0"}
-                </p>
-              </div>
-              <div className="h-16 w-16">
-                <img className="w-full" src={Money} alt="Money Box" />
-              </div>
+        {/* Budget Overview */}
+        <div className="budget_overview mt-5 flex flex-wrap items-center justify-start gap-5 p-5 px-4 md:px-5 lg:px-10">
+          <div className="flex w-[350px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] px-8 py-6 text-white">
+            <div className="">
+              <h2 className="font-[400] text-[rgba(152,162,179,1)]">
+                Total Budget
+              </h2>
+              <p className="text-[36px] font-[600]">
+                <span className="text-[16px]">N</span>
+                {currencyFormat.format(totalBudget)}
+              </p>
+            </div>
+            <div className="h-16 w-16">
+              <img className="full" src={Money} alt="Money Box" />
             </div>
           </div>
 
-          {/* Budgets Container */}
-          <div className="budget_container mb-10 mt-5 px-4 md:px-8 lg:px-16">
-            {showDepartments ? (
-              <div className="mx-auto flex min-h-40 w-full items-center justify-center">
-                {/* Budget Details */}
-                {departments && departments.length > 0 ? (
-                  <Departments departments={departments} />
-                ) : (
-                  <Loader spinnerColor={"border-gray-500"} />
-                )}
-              </div>
-            ) : (
-              <div className="mb-10 mt-5">
-                <h3 className="mb-12 w-full text-[24px] font-[600] md:text-[28px] lg:text-[28px]">
-                  Budgets
-                </h3>
-                <div className="budgets flex flex-wrap items-center gap-8">
-                  {budgets &&
-                  budgets.length > 0 &&
-                  budgetStatus === "success" ? (
+          <div className="flex w-[350px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] px-8 py-6 text-white">
+            <div>
+              <h2 className="font-[400] text-[rgba(152,162,179,1)]">
+                Total Allocated
+              </h2>
+              <p className="text-[36px] font-[600]">
+                <span className="text-[16px]">N</span>
+                {currencyFormat.format(totalAmountAllocated)}
+              </p>
+            </div>
+            <div className="h-16 w-16">
+              <img className="w-full" src={Money} alt="Money Box" />
+            </div>
+          </div>
+
+          <div className="flex w-[350px] justify-between rounded-[24px] bg-[rgba(12,17,29,1)] px-8 py-6 text-white">
+            <div>
+              <h2 className="font-[400] text-[rgba(152,162,179,1)]">
+                Total Spent
+              </h2>
+              <p className="text-[36px] font-[600]">
+                <span className="text-[16px]">N</span>
+                {"0"}
+              </p>
+            </div>
+            <div className="h-16 w-16">
+              <img className="w-full" src={Money} alt="Money Box" />
+            </div>
+          </div>
+        </div>
+
+        {/* Filter for what to show the user */}
+        <div className="select_filter px-4 md:px-5 lg:px-10">
+          <div className="filter_container w-fit rounded-md bg-gray-100 pr-2">
+            <select
+              name="filter"
+              id="filter"
+              value={filter}
+              onChange={(e) => handleFilterChanges(e)}
+              className="rounded-md bg-gray-100 px-2 py-1 outline-none"
+            >
+              <option value="created_budgets">Created budgets</option>
+              <option value="organizations">Organizations you belong to</option>
+              <option value="fund_requests">Fund Requests</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="budget_container mb-10 mt-5 px-4 md:px-5 lg:px-10">
+          {loading ? (
+            <Loader spinnerColor={"border-[#ff450d] mt-8 mx-auto"} />
+          ) : (
+            <div>
+              {filter === "created_budgets" && (
+                <div className="flex flex-wrap items-center justify-start gap-5">
+                  {createdBudgets.length > 0 ? (
                     <>
-                      {budgets.map((budget, _i) => (
-                        <BudgetComponent key={_i} budget={budget} />
+                      {createdBudgets.map((budget, _i) => (
+                        <>
+                          {showDepartments ? (
+                            <BudgetDepartments
+                              key={_i}
+                              budgetAddress={budget.address}
+                              details={(prop) => setShowDepartments(prop.show)}
+                            />
+                          ) : (
+                            <BudgetComponent key={_i} budget={budget} details={(prop) => setShowDepartments(prop.show)} />
+                          )}
+                        </>
                       ))}
                     </>
                   ) : (
-                    <>
-                      {budgetStatus !== "success" ? (
-                        <p className="text-[18px] capitalize">{budgetStatus}</p>
-                      ) : (
-                        <Loader spinnerColor={"border-gray-500"} />
-                      )}
-                    </>
+                    <div className="mx-auto mt-8">
+                      {/* <img src={Empty} alt="Empty" /> */}
+                      <p className="text-center text-[16px] font-[400]">
+                        You have not created any budgets yet
+                      </p>
+                    </div>
                   )}
                 </div>
-              </div>
-            )}
-          </div>
-        </section>
-      </AnimationWrapper>
+              )}
+              {filter === "organizations" && (
+                <div className="flex flex-wrap items-center justify-start gap-5">
+                  {organizationsForUser.length > 0 ? (
+                    organizationsForUser.map((org, _i) => (
+                      <BudgetComponent
+                        key={_i}
+                        budget={org}
+                        button={"request"}
+                      />
+                      // <OrganizationCard key={org.id} organization={org} />
+                    ))
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-5">
+                      {/* <img src={Empty} alt="Empty" /> */}
+                      <p className="mx-auto mt-8">
+                        You have not joined any organizations yet
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+              {filter === "fund_requests" && (
+                <div className="flex flex-wrap items-center justify-center gap-5">
+                  {fundRequests.length > 0 ? (
+                    <Requests />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-5">
+                      {/* <img src={Empty} alt="Empty" /> */}
+                      <p className="mx-auto mt-8">
+                        You have not made any fund requests yet
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
     </>
   );
 };

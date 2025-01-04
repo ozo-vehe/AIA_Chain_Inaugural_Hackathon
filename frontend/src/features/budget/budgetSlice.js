@@ -1,19 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getUserBudgets, getDepartments } from "../../utils/budget";
-
-export const fetchMonsters = createAsyncThunk("monsters/all", async () => {
-  // const monsters = await getMonsters();
-  // return monsters;
-});
+import {
+  getUserBudgets,
+  getDepartments,
+  getAllBudgets,
+} from "../../utils/budget";
 
 export const fetchBudgetDetails = createAsyncThunk(
   "budgets",
   async (address) => {
     const budgets = await getUserBudgets(address);
     const userBudgets = budgets.filter((budget) => budget !== undefined);
-    console.log(userBudgets);
-    if (userBudgets[0].status === "success") {
 
+    if (userBudgets[0].status === "success") {
       const budgetStatus = userBudgets[0].status;
       if (budgetStatus !== "success") return { budgetStatus };
 
@@ -27,7 +25,6 @@ export const fetchBudgetDetails = createAsyncThunk(
         0,
       );
 
-      console.log(userBudgets);
       return {
         userBudgets,
         totalBudgetAmount,
@@ -37,6 +34,11 @@ export const fetchBudgetDetails = createAsyncThunk(
     }
   },
 );
+
+export const fetchAllBudgets = createAsyncThunk("budgets/all", async () => {
+  const budgets = await getAllBudgets();
+  return budgets;
+});
 
 export const fetchBudgetDepartments = createAsyncThunk(
   "budget/departments",
@@ -52,13 +54,11 @@ export const fetchBudgetDepartments = createAsyncThunk(
 const budgetSlice = createSlice({
   name: "budgets",
   initialState: {
-    allBudgets: [],
-    departments: [],
-    showDepartments: false,
+    budgets: [],
+    userBudgets: [],
     totalBudgetAmount: 0,
-    totalBudgetAllocated: 0,
+    totalAmountAllocated: 0,
     totalAmountSpent: 0,
-    budgetStatus: "",
   },
   reducers: {
     setShowDepartments: (state) => {
@@ -67,42 +67,77 @@ const budgetSlice = createSlice({
     clearDepartments: (state) => {
       state.departments = [];
     },
+    fetchUserBudgets: (state, action) => {
+      state.budgets.filter((budget) => budget.owner === action.payload);
+    },
+    fetchTotalBudgetAmount: (state, action) => {
+      const userBudgets = state.budgets.filter(
+        (budget) => budget.owner === action.payload,
+      );
+      console.log(userBudgets);
+
+      if (userBudgets.length > 0) {
+        const totalBudgetAmount = userBudgets.reduce(
+          (total, budget) => total + parseInt(budget.totalBudget),
+          0,
+        );
+
+        state.totalBudgetAmount = totalBudgetAmount;
+      }
+    },
+    fetchTotalAmountAllocated: (state, action) => {
+      const userBudgets = state.budgets.filter(
+        (budget) => budget.owner === action.payload,
+      );
+
+      if (userBudgets.length > 0) {
+        state.totalAmountAllocated = userBudgets.reduce(
+          (total, budget) =>
+            total + parseInt(budget.totalBudget - budget.budgetMonitor),
+          0,
+        );
+      }
+    },
+    fetchTotalAmountSpent: (state, action) => {
+      const userBudgets = state.budgets.filter(
+        (budget) => budget.owner === action.payload,
+      );
+
+      if (userBudgets.length > 0) {
+        const totalAmountSpent = userBudgets.reduce(
+          (total, budget) =>
+            total + parseInt(budget.totalBudget - budget.budgetMonitor),
+          0,
+        );
+
+        state.totalAmountSpent = totalAmountSpent;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchBudgetDetails.fulfilled, (state, action) => {
-        console.log(action.payload);
-        if (action.payload.budgetStatus !== "success") {
-          state.budgetStatus = action.payload.budgetStatus;
-          return;
-        }
-        state.allBudgets = action.payload.userBudgets;
-        state.totalBudgetAmount = action.payload.totalBudgetAmount;
-        state.totalBudgetAllocated = action.payload.totalBudgetAllocated;
-        state.budgetStatus = action.payload.budgetStatus;
+      .addCase(fetchAllBudgets.fulfilled, (state, action) => {
+        state.budgets = action.payload;
       })
-      .addCase(fetchBudgetDetails.rejected, (action) => {
-        console.log(action.error);
-      })
-      .addCase(fetchBudgetDepartments.fulfilled, (state, action) => {
-        state.departments = action.payload;
-      })
-      .addCase(fetchBudgetDepartments.rejected, (action) => {
+      .addCase(fetchAllBudgets.rejected, (action) => {
         console.log(action.error);
       });
   },
 });
 
-export const getAllBudgets = (state) => state.budgets.allBudgets;
-export const getAllDepartments = (state) => state.budgets.departments;
-export const getShowDepartment = (state) => state.budgets.showDepartments;
-export const getAllTotalBudgetAmount = (state) =>
-  state.budgets.totalBudgetAmount;
-export const getTotalBudgetAllocated = (state) =>
-  state.budgets.totalBudgetAllocated;
-export const getBudgetStatus = (state) => state.budgets.budgetStatus;
+export const getAllSavedBudgets = (state) => state.budgets.budgets;
+export const getAllUserBudgets = (state) => state.budgets.userBudgets;
+export const getTotalBudgetAmount = (state) => state.budgets.totalBudgetAmount;
+export const getTotalAmountAllocated = (state) =>
+  state.budgets.totalAmountAllocated;
+export const getTotalAmountSpent = (state) => state.budgets.totalAmountSpent;
 
-export const { setShowDepartments, clearDepartments, fetchTotalBudgetAmount } =
-  budgetSlice.actions;
+export const {
+  setShowDepartments,
+  clearDepartments,
+  fetchUserBudgets,
+  fetchTotalBudgetAmount,
+  fetchTotalAmountAllocated,
+} = budgetSlice.actions;
 
 export default budgetSlice.reducer;

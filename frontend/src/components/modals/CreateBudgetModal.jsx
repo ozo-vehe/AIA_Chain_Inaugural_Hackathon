@@ -3,7 +3,7 @@ import budget_icon from "../../assets/budget_icon.png";
 import { createBudget } from "../../utils/budget";
 import Loader from "../Loader";
 
-const CreateBudget = () => {
+const CreateBudgetModal = () => {
   const [showModal, setShowModal] = useState(false);
   const [confirmatoryForm, setConfirmatoryForm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -227,4 +227,4 @@ const CreateBudget = () => {
   );
 };
 
-export default CreateBudget;
+export default CreateBudgetModal;

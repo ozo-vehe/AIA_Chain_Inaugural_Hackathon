@@ -1,38 +1,55 @@
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
-import {
-  setShowDepartments,
-  clearDepartments,
-} from "../features/budget/budgetSlice";
-import AllocateFunds from "./modals/AllocateFunds";
+// import { useDispatch } from "react-redux";
+// import {
+//   setShowDepartments,
+//   clearDepartments,
+// } from "../features/budget/budgetSlice";
+import AllocateFundsModal from "./modals/AllocateFundsModal";
 import { currencyFormat } from "../utils/budget";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllDepartments, getAllDepartments } from "../features/department/departmentSlice";
+import { useEffect, useState } from "react";
+import { fetchAllBudgets, fetchTotalAmountAllocated, getAllSavedBudgets, getTotalAmountAllocated } from "../features/budget/budgetSlice";
+import { useAccount } from "wagmi";
 
-const Departments = ({ departments }) => {
-  console.log(departments);
+const BudgetDepartments = ({ budgetAddress, details }) => {
+  const [budgetDepartments, setUserDepartments] = useState([]);
+  const departments = useSelector((state) => getAllDepartments(state));
+  const budgets = useSelector((state) => getAllSavedBudgets(state));
+  const totalAmountAllocated = useSelector((state) => getTotalAmountAllocated(state));
+  
   const dispatch = useDispatch();
-  const handleClose = () => {
-    dispatch(setShowDepartments());
-    dispatch(clearDepartments());
-  };
+  const {address} = useAccount()
 
+  useEffect(() => {
+    const budgetDepartments = departments.filter(
+      (department) => department.budgetAddress === budgetAddress
+    );
+    dispatch(fetchAllDepartments(budgets))
+    dispatch(fetchAllBudgets())
+    dispatch(fetchTotalAmountAllocated(address))
+    setUserDepartments(budgetDepartments);
+    console.log(totalAmountAllocated)
+  }, [])
   return (
-    <div className="departments_container mb-10 mt-5 w-full">
-      <div className="departments_header mb-12 flex items-center gap-4">
-        <button className="rounded-md border" onClick={() => handleClose()}>
+    <div className="departments_container mb-2 w-full">
+      <div className="departments_header mb-4 flex items-center gap-1">
+        <button className="rounded-md" onClick={() => details({ show: false })}>
           <img
             width="24"
             height="24"
+            className="mt-[1px]"
             src="https://img.icons8.com/material-rounded/24/back--v1.png"
             alt="back--v1"
           />
         </button>
-        <h3 className="lg:text-[28px] md:text-[28px] text-[24px] font-[600]">Departments</h3>
+        <h3 className="lg:text-[20px] md:text-[20px] text-[18px] font-[600] leading-tight">Budget Departments</h3>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-[#f8f8f8]">
-            <tr>
+      <div className="overflow-x-auto border rounded-[15px] p-4">
+        <table className="min-w-full overflow-hidden rounded-[12px]">
+          <thead className="border">
+            <tr className="h-16 bg-gray-200" style={{ borderRadius: "12px" }}>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-[14px] font-[600] text-gray-700"
@@ -63,16 +80,17 @@ const Departments = ({ departments }) => {
               >
                 Budget Status
               </th>
+              <th></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {departments?.map((department, index) => (
-              <tr key={index} className="hover:bg-gray-50">
+          <tbody className="divide-y divide-gray-200 bg-gray-50 border">
+            {budgetDepartments?.map((department, index) => (
+              <tr key={index} className="hover:bg-gray-100">
                 <td className="whitespace-nowrap px-6 py-4 text-[14px] text-gray-900">
                   {department.id}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-[14px] text-gray-900">
-                  {department.departmentAddress}
+                  {department.departmentAddress.slice(0, 4)}...{department.departmentAddress.slice(-4)}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-[14px] text-gray-900">
                   {currencyFormat.format(department.allocation)}
@@ -94,7 +112,7 @@ const Departments = ({ departments }) => {
 
                 <td className="whitespace-nowrap px-6 py-4">
                   {!department.isAllocated && (
-                    <AllocateFunds
+                    <AllocateFundsModal
                       department={department}
                       departmentCount={departments.length}
                     />
@@ -109,8 +127,9 @@ const Departments = ({ departments }) => {
   );
 };
 
-export default Departments;
+export default BudgetDepartments;
 
-Departments.propTypes = {
-  departments: PropTypes.array,
+BudgetDepartments.propTypes = {
+  budgetAddress: PropTypes.string,
+  details: PropTypes.func,
 };

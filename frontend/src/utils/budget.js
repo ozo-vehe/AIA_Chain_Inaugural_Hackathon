@@ -8,7 +8,6 @@ import {
 import { readBudgetContract } from "./readContract";
 import { writeBudgetContract } from "./writeContract";
 
-// console.log(budgetManagerAbi)
 
 const readableDate = (createdAt) => {
   const timestampInSeconds = Number(createdAt);
@@ -30,8 +29,7 @@ export const currencyFormat = new Intl.NumberFormat("en-US");
 
 export const createBudget = async (formData) => {
   const { address } = getAccount(config);
-  console.log(address);
-  console.log(formData);
+
   const txHash = await writeContract(config, {
     address: contractAddress,
     abi: budgetManagerAbi,
@@ -45,25 +43,57 @@ export const createBudget = async (formData) => {
     account: address,
   });
 
-  console.log(txHash);
   return txHash;
 };
 
 export const getAllBudgets = async () => {
-  console.log("Getting all budgets...");
-  const budgets = await readContract(config, {
+  const smartContractBudget = await readContract(config, {
     address: contractAddress,
     abi: budgetManagerAbi,
     functionName: "listBudgets",
   });
 
-  console.log(budgets);
+  let budgets = [];
+
+  const promises = smartContractBudget.map(async (budget) => {
+    const budgetAddress = budget.budgetAddress;
+    const owner = await readBudgetContract("owner", budgetAddress);
+
+    const title = await readBudgetContract("title", budgetAddress);
+    const departmentCount = await readBudgetContract(
+      "departmentCount",
+      budgetAddress,
+    );
+    const totalBudget = await readBudgetContract("totalBudget", budgetAddress);
+    const orgName = await readBudgetContract("orgName", budgetAddress);
+    const budgetMonitor = await readBudgetContract(
+      "totalBudgetMonitor",
+      budgetAddress,
+    );
+    const createdAt = readableDate(budget.createdAt);
+
+    const budgetDetails = {
+      status: "success",
+      address: budgetAddress,
+      owner,
+      title,
+      orgName,
+      totalBudget: formatEther(totalBudget),
+      budgetMonitor: formatEther(budgetMonitor),
+      departmentCount: Number(departmentCount),
+      createdAt,
+    };
+
+    budgets.push(budgetDetails);
+  });
+
+  await Promise.all(promises);
+
   return budgets;
 };
 
 export const getUserBudgets = async (address) => {
   const budgets = await getAllBudgets();
-  console.log(budgets);
   let userBudgets = [];
 
   const promises = budgets.map(async (budget) => {
@@ -88,7 +118,7 @@ export const getUserBudgets = async (address) => {
       const createdAt = readableDate(budget.createdAt);
 
       const budgetDetails = {
-        status: 'success',
+        status: "success",
         address: budgetAddress,
         owner,
         title,
@@ -99,26 +129,23 @@ export const getUserBudgets = async (address) => {
         createdAt,
       };
 
-      return budgetDetails;
+      userBudgets.push(budgetDetails);
     }
   });
 
-  userBudgets = await Promise.all(promises.filter(Boolean));
-  console.log(userBudgets);
+  await Promise.all(promises);
+
   return userBudgets;
 };
 
 export const getDepartments = async (budgetAddress, departmentCount) => {
-  const totalBudget = await readBudgetContract(
-    "totalBudget",
-    budgetAddress,
-  );
+  const totalBudget = await readBudgetContract("totalBudget", budgetAddress);
   const budgetMonitor = await readBudgetContract(
     "totalBudgetMonitor",
     budgetAddress,
   );
   const departments = [];
-  
+
   for (let i = 0; i < departmentCount; i++) {
     const department = await readBudgetContract("departments", budgetAddress, [
       i,
@@ -132,7 +159,7 @@ export const getDepartments = async (budgetAddress, departmentCount) => {
       allocation: formatEther(department[2]),
       spent: formatEther(department[3]),
       isAllocated: department[4],
-    }
+    };
 
     departments.push(departmentDetails);
   }
@@ -140,10 +167,8 @@ export const getDepartments = async (budgetAddress, departmentCount) => {
 };
 
 export const allocateFund = async (department, amount) => {
-  console.log(department);
-  const {budgetAddress, id, departmentAddress} = department;
-  const allocatedFund = parseEther(amount)
-  console.log(allocatedFund);
+  const { budgetAddress, id, departmentAddress } = department;
+  const allocatedFund = parseEther(amount);
 
   const txHash = await writeBudgetContract("allocateBudget", budgetAddress, [
     departmentAddress,
@@ -151,7 +176,73 @@ export const allocateFund = async (department, amount) => {
     id,
   ]);
 
-  console.log(txHash);
-
   return txHash;
-}
+};
+
+export const getDepartmentOrganizations = async (departmentAddress) => {
+  const budgets = await getAllBudgets();
+  
+  let departmentOrganizations = [];
+  const promises = budgets.map(async (budget) => {
+    const budgetAddress = budget.budgetAddress;
+    const isDepartment = await readBudgetContract(
+      "isDepartment",
+      budgetAddress,
+      [departmentAddress],
+    );
+    if (isDepartment) {
+      const owner = await readBudgetContract("owner", budgetAddress);
+      const title = await readBudgetContract("title", budgetAddress);
+      const departmentCount = await readBudgetContract(
+        "departmentCount",
+        budgetAddress,
+      );
+      const totalBudget = await readBudgetContract(
+        "totalBudget",
+        budgetAddress,
+      );
+      const orgName = await readBudgetContract("orgName", budgetAddress);
+      const budgetMonitor = await readBudgetContract(
+        "totalBudgetMonitor",
+        budgetAddress,
+      );
+      const createdAt = readableDate(budget.createdAt);
+
+      const budgetDetails = {
+        status: "success",
+        address: budgetAddress,
+        owner,
+        title,
+        orgName,
+        totalBudget: formatEther(totalBudget),
+        budgetMonitor: formatEther(budgetMonitor),
+        departmentCount: Number(departmentCount),
+        createdAt,
+        allocatedBudget: formatEther("100000000000000000000"),
+      };
+
+      departmentOrganizations.push(budgetDetails);
+    }
+  });
+
+  await Promise.all(promises);
+
+  return departmentOrganizations;
+};
+
+export const getFundRequests = async (budgetAddress, departmentAddress) => {
+  const request = await readBudgetContract("fundRequests", budgetAddress, [
+    departmentAddress,
+  ]);
+
+  const formattedRequest = {
+    department: departmentAddress,
+    budget: budgetAddress,
+    amount: formatEther(request[0]),
+    reason: request[1],
+    approved: request[2],
+    isExist: request[3],
+  };
+  
+  return formattedRequest;
+};
