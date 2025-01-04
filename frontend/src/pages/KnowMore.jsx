@@ -9,7 +9,7 @@ export default function KnowMore() {
         {data.map((data, index) => (
           <div
             key={index}
-            className="w-[300px] rounded-lg border bg-white p-4 shadow"
+            className="w-[300px] rounded-lg bg-white p-4 shadow"
           >
             <h2 className="mb-2 text-xl font-[500]">{data.title}</h2>
             <p className="mb-4 line-clamp-2 text-gray-600">{data.header}</p>
