@@ -246,3 +246,15 @@ export const getFundRequests = async (budgetAddress, departmentAddress) => {
   
   return formattedRequest;
 };
+
+export const approveFundRequest = async (request) => {
+  console.log(request);
+  try {
+    const txHash = await writeBudgetContract("approveFundRequest", request.budget, [request.department, request.departmentId]);
+    console.log(txHash)
+    return txHash;
+    
+  } catch (error) {
+    console.log(error);
+  }
+}

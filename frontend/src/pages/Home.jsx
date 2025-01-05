@@ -9,7 +9,7 @@ const Home = () => {
   const { address } = useAccount();
 
   return (
-    <duv className="flex flex-col items-center justify-center lg:px-10 md:px-5 px-4">
+    <div className="flex flex-col items-center justify-center lg:px-10 md:px-5 px-4">
       <header className="my-8 w-full text-center">
         <h1 className="lg:text-5xl md:text-4xl text-3xl font-bold">
           Transform Investment and Budget Management with Blockchain
@@ -115,7 +115,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </duv>
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Loader from "../Loader";
 import PropTypes from "prop-types";
 import { requestFund } from "../../utils/requestFund";
@@ -6,19 +6,23 @@ import { useSelector } from "react-redux";
 import { useAccount } from "wagmi";
 import { currencyFormat } from "../../utils/budget";
 import { getAllFundRequests } from "../../features/fundRequests/fundRequestsSlice";
+import { getAllDepartments } from "../../features/department/departmentSlice";
 
-const RequestForFundsModal = ({budget}) => {
+const RequestForFundsModal = ({ budget }) => {
   const [showModal, setShowModal] = useState(false);
+  const [department, setDepartment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    amount: '',
-    reason: '',
-  })
+    amount: "",
+    reason: "",
+  });
 
   const { address } = useAccount();
   const fundRequests = useSelector((state) => getAllFundRequests(state));
-  const isFundRequested = fundRequests.find((request) => request.department === address);
-  console.log(isFundRequested)
+  const isFundRequested = fundRequests.find(
+    (request) => request.department === address,
+  );
+  const departments = useSelector((state) => getAllDepartments(state));
 
   // const dispatch = useDispatch();
 
@@ -28,7 +32,7 @@ const RequestForFundsModal = ({budget}) => {
       ...prevState,
       [name]: value,
     }));
-  }
+  };
 
   const handleFundRequest = async (e) => {
     e.preventDefault();
@@ -40,18 +44,37 @@ const RequestForFundsModal = ({budget}) => {
     try {
       // console.log(budgetAddress)
       await requestFund(formData, budget.address);
+      setLoading(false);
+      setShowModal(false);
+      setFormData({
+        amount: "",
+        reason: "",
+      });
     } catch (error) {
       console.log(error);
+      setLoading(false);
+      setShowModal(false);
+      setFormData({
+        amount: "",
+        reason: "",
+      });
     }
     console.log(formData);
-    setLoading(false);
   };
 
+  useEffect(() => {
+    const savedDepartment = departments.find(
+      (department) => department.departmentAddress === address,
+    );
+    if (savedDepartment) {
+      setDepartment(savedDepartment);
+    }
+  }, [address]);
 
   return (
     <div>
       <button
-        className="py-2 px-2 gap-[8px] rounded-[8px] bg-[#ff450d] text-white font-[500] text-sm disabled:opacity-50"
+        className="gap-[8px] rounded-[8px] bg-[#ff450d] px-2 py-2 text-sm font-[500] text-white disabled:opacity-50"
         onClick={() => setShowModal(true)}
         disabled={isFundRequested}
       >
@@ -68,7 +91,10 @@ const RequestForFundsModal = ({budget}) => {
             <div className="form_header flex items-start justify-between">
               <div className="header_text">
                 <h3 className="mb-1 text-[28px] font-[600]">Fund Request</h3>
-                <p>Allocated fund: {currencyFormat.format(budget.allocatedBudget)}</p>
+                <p>
+                  Allocated fund:{" "}
+                  {currencyFormat.format(department?.allocation)}
+                </p>
               </div>
               <img
                 className="mt-2 w-4 cursor-pointer"
@@ -99,13 +125,19 @@ const RequestForFundsModal = ({budget}) => {
                 <label htmlFor="reason" className="font-[500]">
                   Reason
                 </label>
-                <textarea name="reason" id="reason" className="mt-1 h-[155px] w-full rounded-[12px] border-none bg-gray-100 px-3 py-3 text-gray-800 outline-none" value={formData.reason} onChange={(e) => handleInputChange(e)}></textarea>
+                <textarea
+                  name="reason"
+                  id="reason"
+                  className="mt-1 h-[155px] w-full rounded-[12px] border-none bg-gray-100 px-3 py-3 text-gray-800 outline-none"
+                  value={formData.reason}
+                  onChange={(e) => handleInputChange(e)}
+                ></textarea>
               </div>
             </div>
 
             <div className="form_btn w-full">
               <button
-                className="mt-4 flex w-full cursor-pointer items-center justify-center rounded-[12px] bg-[#ff450d] py-3 text-center text-white"
+                className="mt-4 flex w-full cursor-pointer items-center justify-center rounded-[12px] bg-[#ff450d] py-3 text-center text-white font-[500]"
                 type="submit"
               >
                 {loading ? <Loader /> : "Request"}

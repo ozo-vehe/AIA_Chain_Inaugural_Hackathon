@@ -56,7 +56,10 @@ const Sidebar = () => {
       >
         <div className="flex justify-end">
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              setIsOpen(!isOpen);
+              setShowExploreMenu(false);
+            }}
             className="text-2xl text-gray-700"
           >
             {isOpen ? <HiOutlineX /> : <HiMenuAlt3 />}
@@ -87,7 +90,10 @@ const Sidebar = () => {
             <div className="explore flex flex-col">
               <button
                 className={`my-2 flex items-center rounded-md p-2 px-[5px] text-gray-700 transition-all hover:bg-[#ff450d] hover:text-white`}
-                onClick={() => setShowExploreMenu(!showExploreMenu)}
+                onClick={() => {
+                  setShowExploreMenu(!showExploreMenu);
+                  setIsOpen(true);
+                }}
               >
                 <span className="text-xl">
                   <VscRemoteExplorer />

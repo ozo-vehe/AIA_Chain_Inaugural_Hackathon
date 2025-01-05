@@ -6,6 +6,7 @@ import { currencyFormat } from "../utils/budget";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { getAllFundRequests } from "../features/fundRequests/fundRequestsSlice";
+import ApproveModalRequest from "./modals/ApproveRequestModal";
 
 const Requests = () => {
   const [requestsBudgets, setRequestsBudgets] = useState([]);
@@ -100,23 +101,23 @@ const Requests = () => {
                   {currencyFormat.format(request.amount)}
                 </td>
                 <td className="whitespace-nowrap truncate px-6 py-4 text-[14px] text-gray-900">
-                  {request.reason}
+                  {request.reason.slice(0, 25)}...
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-[14px]">
                   <span
                     className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                      request.isAllocated
+                      request.approved
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {request.isAllocated ? "Approved" : "Not Approved"}
+                    {request.approved ? "Approved" : "Not Approved"}
                   </span>
                 </td>
 
                 <td className="whitespace-nowrap px-6 py-4">
-                  {!request.isAllocated && (
-                    <button className="text-sm bg-green-500 text-gray-50 px-3 flex items-center justify-center rounded-full py-[2px]">Approve</button>
+                  {!request.approved && (
+                    <ApproveModalRequest request={request} />
                   )}
                 </td>
               </tr>

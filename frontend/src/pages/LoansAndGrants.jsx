@@ -1,7 +1,7 @@
 const LoansAndGrants = () => {
   return (
     <section className="mt-8 px-4 md:px-5 lg:px-10">
-      <h1 className="mb-2 text-xl font-bold uppercase md:text-3xl lg:text-5xl">
+      <h1 className="mb-2 text-xl font-[500] uppercase md:text-3xl lg:text-5xl">
         About Our Loaning Services
       </h1>
       <p className="mb-8 text-gray-600">
@@ -16,7 +16,7 @@ const LoansAndGrants = () => {
       </p>
 
       <div className="what-we-offer">
-        <h3 className="mb-2 text-[18px] font-bold uppercase md:text-xl lg:text-2xl">
+        <h3 className="lg:text-3xl md:text-xl text-[18px] font-[500] capitalize mb-2">
           What We Offer
         </h3>
         <ul className="flex list-disc flex-col gap-2 pl-5 text-gray-600">

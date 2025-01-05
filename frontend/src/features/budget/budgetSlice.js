@@ -59,6 +59,7 @@ const budgetSlice = createSlice({
     totalBudgetAmount: 0,
     totalAmountAllocated: 0,
     totalAmountSpent: 0,
+    totalSpent: 0,
   },
   reducers: {
     setShowDepartments: (state) => {
@@ -74,7 +75,6 @@ const budgetSlice = createSlice({
       const userBudgets = state.budgets.filter(
         (budget) => budget.owner === action.payload,
       );
-      console.log(userBudgets);
 
       if (userBudgets.length > 0) {
         const totalBudgetAmount = userBudgets.reduce(
@@ -83,6 +83,8 @@ const budgetSlice = createSlice({
         );
 
         state.totalBudgetAmount = totalBudgetAmount;
+      } else {
+        state.totalBudgetAmount = 0;
       }
     },
     fetchTotalAmountAllocated: (state, action) => {
@@ -96,22 +98,16 @@ const budgetSlice = createSlice({
             total + parseInt(budget.totalBudget - budget.budgetMonitor),
           0,
         );
+      } else {
+        state.totalAmountAllocated = 0;
       }
     },
     fetchTotalAmountSpent: (state, action) => {
-      const userBudgets = state.budgets.filter(
-        (budget) => budget.owner === action.payload,
-      );
-
-      if (userBudgets.length > 0) {
-        const totalAmountSpent = userBudgets.reduce(
-          (total, budget) =>
-            total + parseInt(budget.totalBudget - budget.budgetMonitor),
-          0,
-        );
-
-        state.totalAmountSpent = totalAmountSpent;
-      }
+      const departments = action.payload;
+      const spentFunds = departments.reduce((total, department) => {
+        return total + parseInt(department.spent);
+      }, 0);
+      state.totalAmountSpent = spentFunds;
     },
   },
   extraReducers: (builder) => {
@@ -138,6 +134,7 @@ export const {
   fetchUserBudgets,
   fetchTotalBudgetAmount,
   fetchTotalAmountAllocated,
+  fetchTotalAmountSpent,
 } = budgetSlice.actions;
 
 export default budgetSlice.reducer;

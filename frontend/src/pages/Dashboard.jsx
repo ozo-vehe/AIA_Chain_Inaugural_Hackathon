@@ -8,6 +8,8 @@ import {
   getAllSavedBudgets,
   getTotalBudgetAmount,
   getTotalAmountAllocated,
+  getTotalAmountSpent,
+  fetchTotalAmountSpent,
 } from "../features/budget/budgetSlice";
 import { useSelector, useDispatch } from "react-redux";
 import Loader from "../components/Loader";
@@ -40,26 +42,40 @@ const Dashboard = () => {
   const departments = useSelector((state) => getAllDepartments(state));
   const fundRequests = useSelector((state) => getAllFundRequests(state));
   const totalBudget = useSelector((state) => getTotalBudgetAmount(state));
+  const spentFunds = useSelector((state) => getTotalAmountSpent(state));
   const totalAmountAllocated = useSelector((state) =>
     getTotalAmountAllocated(state),
   );
 
+  const calculateTotalAmountSpent = () => {
+    let budgetDepartments = [];
+    createdBudgets.forEach((budget) => {
+      const department = departments.filter(
+        (department) => department.budgetAddress === budget.address,
+      );
+      budgetDepartments.push(...department);
+    })
+
+    dispatch(fetchTotalAmountSpent(budgetDepartments));
+  }
+
   const handleFilterChanges = (e) => {
     e.preventDefault();
     setFilter(e.target.value);
+    calculateTotalAmountSpent()
+
     if (departments?.length > 0) {
       dispatch(fetchAllFundRequests(departments));
       const department = departments.find(
         (department) => department.departmentAddress === address,
       );
-      console.log(department);
+
       if (department) {
         const budget = budgets.filter(
           (budget) => budget.address === department.budgetAddress,
         );
 
         setOrganizationsForUser(budget);
-        console.log(budget);
       }
     }
   };
@@ -76,14 +92,16 @@ const Dashboard = () => {
       );
       setCreatedBudgets(createdBudgets);
       setLoading(false);
+      calculateTotalAmountSpent();
     };
 
     fetchContractDetails();
-  }, []);
+  }, [address]);
 
   return (
     <>
       <section className="dashboard">
+        {/* Budget Header */}
         <header className="dashboard_header">
           <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-1 md:px-5 lg:px-10">
             <div className="flex items-start gap-4">
@@ -147,7 +165,7 @@ const Dashboard = () => {
               </h2>
               <p className="text-[36px] font-[600]">
                 <span className="text-[16px]">N</span>
-                {"0"}
+                {currencyFormat.format(spentFunds)}
               </p>
             </div>
             <div className="h-16 w-16">
@@ -183,7 +201,7 @@ const Dashboard = () => {
                   {createdBudgets.length > 0 ? (
                     <>
                       {createdBudgets.map((budget, _i) => (
-                        <>
+                        <div key={_i} className="w-full">
                           {showDepartments ? (
                             <BudgetDepartments
                               key={_i}
@@ -193,7 +211,7 @@ const Dashboard = () => {
                           ) : (
                             <BudgetComponent key={_i} budget={budget} details={(prop) => setShowDepartments(prop.show)} />
                           )}
-                        </>
+                        </div>
                       ))}
                     </>
                   ) : (
