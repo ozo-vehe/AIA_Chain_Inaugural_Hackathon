@@ -4,8 +4,11 @@ import { Link } from "react-router-dom";
 export default function KnowMore() {
   return (
     <>
-      <header></header>
-      <div className="flex flex-wrap justify-start gap-x-8 gap-y-4 px-4 md:px-5 lg:px-10">
+      <div className="px-4 md:px-5 lg:px-10">
+        <header className="mb-8">
+          <h1 className="lg:text-5xl md:text-3xl text-xl uppercase font-[500] mb-2">Know More</h1>
+        </header>
+        <div className="know-more-container flex flex-wrap lg:justify-start md:justify-start justify-center gap-x-8 gap-y-4 ">
         {data.map((data, index) => (
           <div
             key={index}
@@ -21,6 +24,7 @@ export default function KnowMore() {
             </Link>
           </div>
         ))}
+        </div>
       </div>
     </>
   );

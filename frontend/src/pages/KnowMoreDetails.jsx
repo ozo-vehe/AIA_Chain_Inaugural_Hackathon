@@ -16,7 +16,7 @@ const KnowMoreDetails = () => {
   return (
     <>
       {info && (
-        <section className="mt-6 px-4 md:px-5 lg:px-10">
+        <section className="mt-6 px-4 md:px-5 lg:px-10 mb-8">
           <button
             className="mb-2 capitalize text-gray-600 transition-all duration-300 hover:text-gray-900"
             onClick={() => window.history.back()}

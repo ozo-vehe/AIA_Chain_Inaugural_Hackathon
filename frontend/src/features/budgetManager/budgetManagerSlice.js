@@ -18,9 +18,13 @@ export const fetchBudgets = createAsyncThunk(
 const budgetManagerSlice = createSlice({
   name: "budgetManager",
   initialState: {
-    budgets: [],
+    showMobileSidebar: false,
   },
-  reducers: {},
+  reducers: {
+    setShowMobileSidebar: (state, action) => {
+      state.showMobileSidebar = action.payload;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchBudgets.fulfilled, (state, action) => {
@@ -32,8 +36,7 @@ const budgetManagerSlice = createSlice({
   },
 });
 
-// export const getUploadedMonsters = (state) => state.budget.budgets;
-// export const getUserMonsters = (state) => state.budget.userMonsters;
-// export const getBalance = (state) => state.budget.balance;
+export const getShowMobileSidebar = (state) => state.budgetManager.showMobileSidebar;
+export const { setShowMobileSidebar } = budgetManagerSlice.actions;
 
 export default budgetManagerSlice.reducer;

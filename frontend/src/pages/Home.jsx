@@ -54,10 +54,10 @@ const Home = () => {
         <p className="font-[300] mt-2 max-w-[700px] mx-auto">Fineace uses blockchain for a decentralized, immutable ledger that track fund allocation and spending, ensuring visibility and accountability</p>
 
         <div className="flex flex-wrap items-center justify-center gap-8 my-8 max-w-[1080px] mx-auto">
-          <div className="flex flex-col items-center justify-center border-gray-200 rounded-[16px] p-5 h-[400px] w-[45%] overflow-hidden bg-gray-100">
+          <div className="flex flex-col items-center justify-center border-gray-200 rounded-[16px] p-5 lg:h-[400px] md:h-[400px] h-fit lg:w-[45%] md:w-[45%] w-full overflow-hidden bg-gray-100">
             <img className="w-[90%] h-[90%] object-cover" src={cards} alt="Card display image" />
           </div>
-          <div className="flex flex-col items-center justify-center border-gray-200 rounded-[16px] p-5 h-[400px] w-[45%] overflow-hidden bg-gray-100">
+          <div className="flex flex-col items-center justify-center border-gray-200 rounded-[16px] p-5 lg:h-[400px] md:h-[400px] h-fit lg:w-[45%] md:w-[45%] w-fulloverflow-hidden bg-gray-100">
             <img className="w-[90%] h-[90%] object-cover" src={request} alt="Request display image" />
           </div>
         </div>
