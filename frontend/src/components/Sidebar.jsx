@@ -51,7 +51,7 @@ const Sidebar = () => {
     <div className="bg-gray-50 text-gray-700">
       <div
         className={`${
-          isOpen ? "w-64" : "w-16"
+          isOpen ? "lg:w-64 md:w-64 w-16" : "w-16"
         } bg-gray-50 p-4 transition-all duration-300`}
       >
         <div className="flex justify-end">
